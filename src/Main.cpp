@@ -19,6 +19,8 @@ int main(int argc, char *args[])
 	const float FIXED_FPS = 60.0f;
 	const float DELTA_TIME = 1000.0f / FIXED_FPS;
 
+	glm::vec2 mouseDownLocation;
+
 	SDL_Renderer *renderer = window->getRenderer();
 	SDL_Event event;
 	while (true)
@@ -30,10 +32,20 @@ int main(int argc, char *args[])
 				delete window;
 				return 0;
 			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				mouseDownLocation = glm::vec2(event.motion.x, event.motion.y);
+			}
+			else if (event.type == SDL_MOUSEBUTTONUP)
+			{
+				scene.spawnPedestrian(mouseDownLocation, glm::vec2(event.motion.x, event.motion.y));
+			}
 			else if (event.type == SDL_KEYUP)
 			{
 				if (event.key.keysym.sym == SDLK_r)
-					scene.scramblePedestrians(5);
+					scene.resetPedestrians();
+				else if (event.key.keysym.sym == SDLK_SPACE)
+					scene.scramblePedestrians(10);
 			}
 		}
 
