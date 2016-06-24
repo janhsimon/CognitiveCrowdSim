@@ -44,12 +44,13 @@ Pedestrian::Pedestrian(const glm::vec2 &position, const glm::vec2 &destinationPo
 	velocity = glm::vec2(0.0f, 0.0f);
 	mass = glm::linearRand(40.0f, 140.0f);
 	radius = mass / 8.0f;
+	forward = glm::normalize(destinationPoint - position);
 	bestWalkingSpeed = glm::linearRand(0.04f, 0.1f);
 	this->destinationPoint = destinationPoint;
 	fieldOfView = 400.0f;
 	visionDepth = 600.0f;
 
-	numRays = 48;
+	numRays = 128;
 	rays = new glm::vec2[numRays];
 }
 

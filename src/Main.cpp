@@ -46,6 +46,10 @@ int main(int argc, char *args[])
 					scene.resetPedestrians();
 				else if (event.key.keysym.sym == SDLK_SPACE)
 					scene.scramblePedestrians(10);
+				else if (event.key.keysym.sym == SDLK_c)
+					scene.spawnCircleOfPedestrians();
+				else if (event.key.keysym.sym == SDLK_w)
+					scene.spawnWallOfPedestrians();
 			}
 		}
 

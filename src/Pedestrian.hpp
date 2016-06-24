@@ -24,10 +24,12 @@ public:
 	Pedestrian(const glm::vec2 &position, const glm::vec2 &destinationPoint);
 
 	inline glm::vec2 getPosition() const { return position; }
+	inline void setPosition(const glm::vec2 &position) { this->position = position; }
 	inline float getRadius() const { return radius; }
 	inline glm::vec2 getForward() const { return forward; }
 	inline void setForward(const glm::vec2 &forward) { this->forward = forward; }
 	inline glm::vec2 getDestinationPoint() const { return destinationPoint; }
+	inline float getBestWalkingSpeed() const { return bestWalkingSpeed; }
 	inline float getVisionDepth() const { return visionDepth; }
 	inline unsigned int getNumRays() const { return numRays; }
 	inline glm::vec2 getRay(unsigned int index) const { assert(index >= 0 && index < numRays); return rays[index]; }
