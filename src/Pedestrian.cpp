@@ -45,15 +45,17 @@ Pedestrian::Pedestrian(const glm::vec2 &position, const glm::vec2 &destinationPo
 	mass = glm::linearRand(40.0f, 140.0f);
 	radius = mass / 8.0f;
 	forward = glm::normalize(destinationPoint - position);
-	bestWalkingSpeed = glm::linearRand(0.04f, 0.1f);
+	bestWalkingSpeed = glm::linearRand(0.1f, 0.2f);
+	walkingSpeed = bestWalkingSpeed;
 	this->destinationPoint = destinationPoint;
 	fieldOfView = 400.0f;
 	visionDepth = 600.0f;
 
-	numRays = 128;
-	rays = new glm::vec2[numRays];
+	///numRays = 48;//128;
+	//rays = new glm::vec2[numRays];
 }
 
+/*
 void Pedestrian::calculateRays()
 {
 	assert(rays);
@@ -67,6 +69,7 @@ void Pedestrian::calculateRays()
 		rays[i] = pedToDest * visionDepth + glm::vec2(pedToDest.y, -pedToDest.x) * shiftAmount;
 	}
 }
+*/
 
 void Pedestrian::update(float deltaTime)
 {
@@ -75,14 +78,18 @@ void Pedestrian::update(float deltaTime)
 	if (glm::length(pedToDest) < bestWalkingSpeed * deltaTime)
 		forward = glm::vec2(0.0f, 0.0f);
 
-	position += forward * bestWalkingSpeed * deltaTime;
+	position += forward * walkingSpeed * deltaTime;
 }
 
 void Pedestrian::render(SDL_Renderer *renderer)
 {
 	assert(renderer);
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	if (walkingSpeed >= bestWalkingSpeed)
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	else
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
 	drawCircle(renderer, position.x, position.y, radius, 16);
 
 	/*

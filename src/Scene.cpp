@@ -52,13 +52,14 @@ float f(float a, const Pedestrian &pedestrian, const Scene *scene, float deltaTi
 	return pedestrian.getVisionDepth();
 }
 
-float d(float a, float a0, const Pedestrian &pedestrian, const Scene *scene, float deltaTime)
+float d(float a, float a0, const Pedestrian &pedestrian, const Scene *scene, float deltaTime, float &outF)
 {
 	assert(scene);
 	float d_max = pedestrian.getVisionDepth();
 	float f_a = f(a, pedestrian, scene, deltaTime);
 	float d_a = d_max * d_max + f_a * f_a - 2.0f * d_max * f_a * cosf(a0 - a);
 	//std::cout << "d(" << a << ") = " << d_a << "   with a0 = " << a0 << ", a0 - a = " << a0 - a << " and cosf(a0 - a) = " << cosf(a0 - a) << std::endl;
+	outF = f_a;
 	return d_a;
 }
 
@@ -125,6 +126,8 @@ void Scene::update(float deltaTime)
 	const float THETA = M_PI / 2.0f;
 	const float STEP_SIZE = THETA / 256.0f;
 
+	const float TAU = 0.2f;
+
 	for (Pedestrian *pedestrian : pedestrians)
 	{
 		glm::vec2 pedToDest = glm::normalize(pedestrian->getDestinationPoint() - pedestrian->getPosition());
@@ -137,20 +140,26 @@ void Scene::update(float deltaTime)
 
 		float min_d_a = -1.0f;
 		float min_a = -1.0f;
+		float min_f = -1.0f;
 		for (float a = H - THETA; a < H + THETA; a += STEP_SIZE)
 		{
-			float d_a = d(a, a0, *pedestrian, this, deltaTime);
+			float f;
+			float d_a = d(a, a0, *pedestrian, this, deltaTime, f);
 
 			if (d_a < min_d_a || min_d_a < 0.0f)
 			{
 				min_d_a = d_a;
 				min_a = a;
+				min_f = f;
 			}
 		}
 		
 		//std::cout << "selected angle = " << min_a << std::endl;
 		glm::vec2 newForward(cosf(min_a), sinf(min_a));
 		pedestrian->setForward(glm::normalize(newForward));
+
+		glm::vec2 pedToObstacle = pedestrian->getForward() * min_f;
+		pedestrian->setWalkingSpeed(glm::min(pedestrian->getBestWalkingSpeed(), (glm::length(pedToObstacle) / pedestrian->getVisionDepth()) * TAU));
 
 		pedestrian->update(deltaTime);
 	}
