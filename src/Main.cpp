@@ -20,6 +20,7 @@ int main(int argc, char *args[])
 	const float DELTA_TIME = 1000.0f / FIXED_FPS;
 
 	glm::vec2 mouseDownLocation;
+	bool debug = true;
 
 	SDL_Renderer *renderer = window->getRenderer();
 	SDL_Event event;
@@ -38,7 +39,12 @@ int main(int argc, char *args[])
 			}
 			else if (event.type == SDL_MOUSEBUTTONUP)
 			{
-				scene.spawnPedestrian(mouseDownLocation, glm::vec2(event.motion.x, event.motion.y));
+				glm::vec2 mouseUpLocation(event.motion.x, event.motion.y);
+
+				if (event.button.button == 1)
+					scene.spawnPedestrian(mouseDownLocation, mouseUpLocation);
+				else if (event.button.button == 3)
+					scene.spawnWall(mouseDownLocation, mouseUpLocation);
 			}
 			else if (event.type == SDL_KEYUP)
 			{
@@ -50,6 +56,8 @@ int main(int argc, char *args[])
 					scene.spawnCircleOfPedestrians();
 				else if (event.key.keysym.sym == SDLK_w)
 					scene.spawnWallOfPedestrians();
+				else if (event.key.keysym.sym == SDLK_F1)
+					debug = !debug;
 			}
 		}
 
@@ -58,7 +66,7 @@ int main(int argc, char *args[])
 		assert(renderer);
 		SDL_SetRenderDrawColor(renderer, 96, 96, 224, 255);
 		SDL_RenderClear(renderer);
-		scene.render(renderer);
+		scene.render(renderer, debug);
 		SDL_RenderPresent(renderer);
 
 		SDL_Delay(int(DELTA_TIME));

@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cmath>
 #include <gtc\random.hpp>
+#include <iostream>
 
 #include "Pedestrian.hpp"
 
@@ -42,13 +43,12 @@ Pedestrian::Pedestrian(const glm::vec2 &position, const glm::vec2 &destinationPo
 {
 	this->position = position;
 	velocity = glm::vec2(0.0f, 0.0f);
+	acceleration = destinationPoint - position; //glm::vec2(0.0f, 0.0f);
 	mass = glm::linearRand(40.0f, 140.0f);
 	radius = mass / 8.0f;
-	forward = glm::normalize(destinationPoint - position);
-	bestWalkingSpeed = glm::linearRand(0.1f, 0.2f);
-	walkingSpeed = bestWalkingSpeed;
+	bestWalkingSpeed = glm::linearRand(1.0f, 2.0f);
 	this->destinationPoint = destinationPoint;
-	fieldOfView = 400.0f;
+	//fieldOfView = 400.0f;
 	visionDepth = 600.0f;
 
 	///numRays = 48;//128;
@@ -71,26 +71,54 @@ void Pedestrian::calculateRays()
 }
 */
 
-void Pedestrian::update(float deltaTime)
+void Pedestrian::update(const glm::vec2 &v_des, float deltaTime)
 {
+	/*
 	glm::vec2 pedToDest = destinationPoint - position;
 
 	if (glm::length(pedToDest) < bestWalkingSpeed * deltaTime)
 		forward = glm::vec2(0.0f, 0.0f);
+	*/
 
-	position += forward * walkingSpeed * deltaTime;
+	/*
+	velocity += acceleration * deltaTime;
+
+	if (glm::length(velocity) > bestWalkingSpeed)
+		velocity = glm::normalize(velocity) * bestWalkingSpeed;
+
+	position += velocity * deltaTime;
+	*/
+
+	const float TAU = 2.0f;
+
+	acceleration = (v_des - velocity) / TAU;
+
+	//if (glm::length(acceleration) < 0.0001f)
+		//acceleration = glm::vec2(0.0f, 0.0f);
+
+	//std::cout << "v_des = " << v_des.x << "/" << v_des.y << "\tvelocity = " << velocity.x << "/" << velocity.y << "\taccel = " << acceleration.x << "/" << acceleration.y << std::endl;
+	
+	velocity += acceleration;
+
+	if (glm::length(velocity) > bestWalkingSpeed)
+		velocity = glm::normalize(velocity) * bestWalkingSpeed;
+
+	position += velocity;
 }
 
-void Pedestrian::render(SDL_Renderer *renderer)
+void Pedestrian::render(SDL_Renderer *renderer, bool debug)
 {
 	assert(renderer);
 
-	if (walkingSpeed >= bestWalkingSpeed)
+	if (glm::length(velocity) >= bestWalkingSpeed - FLT_EPSILON)
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	else
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
-	drawCircle(renderer, position.x, position.y, radius, 16);
+	drawCircle(renderer, position.x, position.y, radius, 12);
+
+	if (!debug)
+		return;
 
 	/*
 	assert(rays);
@@ -101,7 +129,25 @@ void Pedestrian::render(SDL_Renderer *renderer)
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 	drawCircle(renderer, destinationPoint.x, destinationPoint.y, 5.0f, 4);
+	SDL_RenderDrawLine(renderer, int(position.x), int(position.y), int(destinationPoint.x), int(destinationPoint.y));
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-	SDL_RenderDrawLine(renderer, int(position.x), int(position.y), int(position.x + forward.x * 100.0f), int(position.y + forward.y * 100.0f));
+	float vX = glm::normalize(velocity).x;
+	float vY = glm::normalize(velocity).y;
+
+	glm::vec2 normAccel = glm::normalize(acceleration);
+
+	float aX = 0.0f;
+	float aY = 0.0f;
+
+	if (glm::length(acceleration) > 0.1f)
+	{
+		aX = normAccel.x;
+		aY = normAccel.y;
+	}
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderDrawLine(renderer, int(position.x), int(position.y), int(position.x + vX * 100.0f), int(position.y + vY * 100.0f));
+
+	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+	SDL_RenderDrawLine(renderer, int(position.x), int(position.y), int(position.x + aX * 100.0f), int(position.y + aY * 100.0f));
 }

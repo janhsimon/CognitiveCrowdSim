@@ -62,7 +62,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -75,7 +75,7 @@
       <OutputFile>$(SolutionDir)bin\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\SDL2-2.0.4\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -83,12 +83,14 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Pedestrian.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Wall.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Error.hpp" />
     <ClInclude Include="src\Pedestrian.hpp" />
     <ClInclude Include="src\Scene.hpp" />
+    <ClInclude Include="src\Wall.hpp" />
     <ClInclude Include="src\Window.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
